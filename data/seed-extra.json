@@ -1,0 +1,16 @@
+{
+  "_note": "Threads NOT posted by the whoishiring/_whoishiring accounts. These are the community-run monthly threads that preceded the bot (Jun 2010 - Mar 2011), the one month the bot failed to run (Jul 2011), and one month where a community thread out-competed the bot's (Dec 2011). They are marked official=false in the output. When two threads exist for the same kind+month, the one with more comments wins. Months with no clear single monthly thread (Jul/Aug 2010) are intentionally omitted.",
+  "posts": [
+    { "id": 1438505, "kind": "hiring", "month": "2010-06", "note": "First 'Ask HN: Who is Hiring?' thread; no month in title" },
+    { "id": 1659409, "kind": "hiring", "month": "2010-09" },
+    { "id": 1748045, "kind": "hiring", "month": "2010-10" },
+    { "id": 1855569, "kind": "hiring", "month": "2010-11" },
+    { "id": 1957538, "kind": "hiring", "month": "2010-12" },
+    { "id": 2057704, "kind": "hiring", "month": "2011-01" },
+    { "id": 2161360, "kind": "hiring", "month": "2011-02", "note": "Posted 2011-01-31" },
+    { "id": 2274917, "kind": "hiring", "month": "2011-03", "note": "Fragmented month (several competing threads); this is the one titled for March 2011" },
+    { "id": 2719028, "kind": "hiring", "month": "2011-07", "note": "whoishiring bot did not run; posted by Aloisius" },
+    { "id": 2719083, "kind": "freelancer", "month": "2011-07", "note": "whoishiring bot did not run; posted by Aloisius" },
+    { "id": 3300290, "kind": "hiring", "month": "2011-12", "note": "Community thread posted minutes before the bot's; the official post (3300371) only got 4 comments" }
+  ]
+}

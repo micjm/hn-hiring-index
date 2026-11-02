@@ -1,0 +1,17 @@
+{
+  "name": "hn-job-index",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Monthly comment counts for Hacker News 'Who is hiring?' / 'Who wants to be hired?' / 'Freelancer?' threads",
+  "scripts": {
+    "fetch": "node scripts/fetch-posts.mjs",
+    "plots": "node scripts/generate-plots.mjs",
+    "index": "node scripts/build-index.mjs",
+    "build": "npm run fetch && npm run plots && npm run index",
+    "start": "node scripts/serve.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
