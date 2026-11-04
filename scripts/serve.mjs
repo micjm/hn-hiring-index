@@ -43,7 +43,10 @@ a{color:var(--blue);text-underline-offset:3px}
 @media(max-width:520px){header,main,footer{padding-left:18px;padding-right:18px}header{padding-top:24px}h1{font-size:25px}.figure-heading{gap:4px}}
 `;
 
-const HTML = `<!doctype html>
+const FOOTER_CREDITS = `<p>Built with <a href="https://agentduel.com">agent duel</a> <a href="https://github.com/bottomless/agent-duel">[github]</a></p>
+    <p>Built by <a href="https://micjm.com">micjm</a> <a href="https://micjm.com/blog/hn-hiring-index-agent-duel/">[blog]</a></p>`;
+
+export const HTML = `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -58,7 +61,7 @@ const HTML = `<!doctype html>
 </header>
 <main>
   <p id="status" role="status"></p>
-  <noscript><p>JavaScript is required to display the charts. Data downloads are on the <a href="/methodology">Methodology page</a>.</p></noscript>
+  <noscript><p>JavaScript is required to display the charts. Data downloads are on the <a href="./methodology/">Methodology page</a>.</p></noscript>
   <figure aria-labelledby="index-title">
     <figcaption>
       <div class="figure-heading">
@@ -78,7 +81,8 @@ const HTML = `<!doctype html>
 </main>
 <footer>
   <div class="footer-content">
-    <a href="/methodology">Methodology</a>
+    <p><a href="./methodology/">Methodology</a></p>
+    ${FOOTER_CREDITS}
   </div>
 </footer>
 <div id="tip" role="status" aria-live="polite"></div>
@@ -174,7 +178,7 @@ function chart(elId, months, { title, series, reference, tooltip }) {
 
 try {
   status.textContent = "Loading data…";
-  const response = await fetch("/data/index.json");
+  const response = await fetch("./data/index.json");
   if (!response.ok) throw new Error("Data unavailable");
   const D = await response.json();
   const idx = D.index;
@@ -217,7 +221,7 @@ try {
 </body>
 </html>`;
 
-function methodology(data) {
+export function methodology(data) {
   const fmtMonth = month => new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(month + "-01T00:00:00Z"));
   const period = fmtMonth(data.base_period.start) + "–" + fmtMonth(data.base_period.end);
   return `<!doctype html>
@@ -246,9 +250,9 @@ function methodology(data) {
   <p>Seasonal adjustment uses five passes of a centered 12-month moving-average trend and median month-of-year ratios. Both figures display monthly values without additional smoothing.</p>
   <h2>Sources and limits</h2>
   <p>Official HN threads are collected through the HN API; Algolia supplies comment timing for the fixed windows. Counts include replies, so they are not unique people, employers or vacancies. HN is not representative of the whole job market.</p>
-  <p class="links"><a href="/data/index.csv">Index data (CSV)</a><a href="/data/posts.csv">Thread data (CSV)</a><a href="/data/index.json">Index and method details (JSON)</a></p>
+  <p class="links"><a href="../data/index.csv">Index data (CSV)</a><a href="../data/posts.csv">Thread data (CSV)</a><a href="../data/index.json">Index and method details (JSON)</a></p>
 </main>
-<footer><div class="footer-content"><a href="/">Back to charts</a></div></footer>
+<footer><div class="footer-content"><p><a href="../">Back to charts</a></p>${FOOTER_CREDITS}</div></footer>
 </body>
 </html>`;
 }
@@ -272,4 +276,6 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(404); res.end("Not found");
   } catch { res.writeHead(404); res.end("Not found"); }
 });
-server.listen(PORT, HOST, () => console.log(`HN Hiring Index on http://${HOST}:${PORT}`));
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  server.listen(PORT, HOST, () => console.log(`HN Hiring Index on http://${HOST}:${PORT}`));
+}

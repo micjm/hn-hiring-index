@@ -9,6 +9,7 @@
     "plots": "node scripts/generate-plots.mjs",
     "index": "node scripts/build-index.mjs",
     "build": "npm run fetch && npm run plots && npm run index",
+    "build:static": "node scripts/build-static.mjs",
     "start": "node scripts/serve.mjs"
   },
   "engines": {
