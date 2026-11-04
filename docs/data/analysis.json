@@ -1,0 +1,132 @@
+{
+  "generated_at": "2026-11-02T22:28:52.423Z",
+  "mature_through": "2026-10",
+  "censored_months": [
+    "2026-11"
+  ],
+  "seasonality": {
+    "months": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ],
+    "hiring_24hr": [
+      -24.41,
+      3.58,
+      -0.98,
+      2.7,
+      13.96,
+      2.69,
+      1.32,
+      8.77,
+      -10.53,
+      4.9,
+      7.28,
+      -8.4
+    ],
+    "hiring_21d": [
+      -15.42,
+      2.99,
+      -1.98,
+      3.66,
+      10.76,
+      3.41,
+      1.03,
+      5.17,
+      -6.01,
+      3.15,
+      4.05,
+      -9.27
+    ],
+    "wants_21d": [
+      -1.61,
+      -5.96,
+      1.35,
+      15.3,
+      1.08,
+      3.91,
+      0.52,
+      4.32,
+      -9.18,
+      -0.61,
+      -2.57,
+      -17.06
+    ]
+  },
+  "lead_lag": [
+    {
+      "lag": -6,
+      "corr_levels": -0.698,
+      "corr_yoy": -0.164
+    },
+    {
+      "lag": -5,
+      "corr_levels": -0.708,
+      "corr_yoy": -0.167
+    },
+    {
+      "lag": -4,
+      "corr_levels": -0.69,
+      "corr_yoy": -0.224
+    },
+    {
+      "lag": -3,
+      "corr_levels": -0.692,
+      "corr_yoy": -0.227
+    },
+    {
+      "lag": -2,
+      "corr_levels": -0.695,
+      "corr_yoy": -0.201
+    },
+    {
+      "lag": -1,
+      "corr_levels": -0.673,
+      "corr_yoy": -0.247
+    },
+    {
+      "lag": 0,
+      "corr_levels": -0.642,
+      "corr_yoy": -0.215
+    },
+    {
+      "lag": 1,
+      "corr_levels": -0.685,
+      "corr_yoy": -0.287
+    },
+    {
+      "lag": 2,
+      "corr_levels": -0.651,
+      "corr_yoy": -0.314
+    },
+    {
+      "lag": 3,
+      "corr_levels": -0.668,
+      "corr_yoy": -0.352
+    },
+    {
+      "lag": 4,
+      "corr_levels": -0.681,
+      "corr_yoy": -0.304
+    },
+    {
+      "lag": 5,
+      "corr_levels": -0.655,
+      "corr_yoy": -0.301
+    },
+    {
+      "lag": 6,
+      "corr_levels": -0.643,
+      "corr_yoy": -0.281
+    }
+  ]
+}

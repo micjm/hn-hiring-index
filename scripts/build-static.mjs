@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { HTML, methodology } from "./serve.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const OUT = path.join(ROOT, "dist");
+const OUT = path.join(ROOT, "docs");
 const data = JSON.parse(await fs.readFile(path.join(ROOT, "data/index.json"), "utf8"));
 
 await fs.rm(OUT, { recursive: true, force: true });
@@ -17,4 +17,4 @@ await Promise.all([
   fs.cp(path.join(ROOT, "plots"), path.join(OUT, "plots"), { recursive: true }),
 ]);
 
-console.log("Static site built in dist/");
+console.log("Static site built in docs/");
