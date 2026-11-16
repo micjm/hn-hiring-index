@@ -1,0 +1,16 @@
+name: Notification test (temporary)
+
+# TEMPORARY: exists only to verify that workflow-run notification emails reach
+# the repository owner. It always fails on purpose. Delete this file once the
+# test has been confirmed.
+on:
+  workflow_dispatch:
+
+jobs:
+  deliberate-failure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm the failure email arrives
+        run: |
+          echo "This job fails on purpose to test notification delivery."
+          exit 1
