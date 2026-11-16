@@ -29,6 +29,13 @@ GitHub Pages must be configured with **Settings → Pages → Source: GitHub
 Actions** for the deploy step to work (the workflow commits with
 `GITHUB_TOKEN`, and such pushes do not trigger a branch-based Pages build).
 
+> **One-time setup order matters.** If Pages is currently set to deploy from
+> the `main` branch's `/docs` folder, do not switch the source until Actions
+> jobs can actually start on this account: switching disconnects the working
+> branch deployment, and until a workflow run succeeds nothing new will
+> publish. First make sure a workflow run can start, then switch the source
+> to GitHub Actions, then run this workflow once from the Actions tab.
+
 To refresh by hand locally instead:
 
 ```sh

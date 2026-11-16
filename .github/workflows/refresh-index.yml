@@ -9,6 +9,10 @@ name: Refresh HN Hiring Index
 # daily over that window (22nd-28th) so a late-posted thread or a failed run
 # is picked up the next day; runs that produce no substantive change are
 # not committed or deployed (see the "Detect changes" step).
+#
+# Prerequisite: GitHub Pages must use "Source: GitHub Actions" (Settings ->
+# Pages) for the deploy steps below, and Actions jobs must be able to start
+# on this account. See README.md ("Updating") for the safe setup order.
 
 on:
   schedule:
