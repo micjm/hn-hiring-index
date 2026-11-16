@@ -3,16 +3,14 @@ name: Refresh index and deploy
 # Rebuilds data/, plots/ and docs/ from the HN APIs, commits the result back to
 # main (so the cached thread counts survive between runs), and publishes the
 # site through GitHub Pages.
+#
+# Requires Pages to be configured with "Source: GitHub Actions" (Settings ->
+# Pages). While Pages still deploys from the main branch's /docs folder, this
+# workflow cannot publish even if it runs successfully.
 on:
   schedule:
     - cron: "17 13 * * *" # daily, 13:17 UTC
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - "scripts/**"
-      - "package.json"
-      - ".github/workflows/refresh.yml"
 
 permissions:
   contents: write
