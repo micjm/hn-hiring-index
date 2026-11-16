@@ -6,7 +6,9 @@ const API = "https://hacker-news.firebaseio.com/v0";
 const ALGOLIA_API = "https://hn.algolia.com/api/v1";
 const OFFICIAL_ACCOUNTS = ["whoishiring", "_whoishiring"];
 const CONCURRENCY = 25;
-const ALGOLIA_CONCURRENCY = 4;
+const ALGOLIA_CONCURRENCY = 6;
+const ALGOLIA_BATCH_MAX_POSTS = 6;
+const ALGOLIA_BATCH_MAX_COMMENTS = 800;
 
 const WINDOWS = [
   { field: "comments_24hr", seconds: 24 * 3600 },
@@ -60,51 +62,89 @@ async function mapLimit(items, limit, fn) {
 const fetchItem = (id) => getJson(`${API}/item/${id}.json`);
 const fetchUser = (name) => getJson(`${API}/user/${name}.json`);
 
-async function fetchCommentsAfter(storyIds, minUnix) {
+async function fetchTopLevelComments(storyIds) {
   const tagGroup = storyIds.length === 1 ? `story_${storyIds[0]}` : `(${storyIds.map((id) => `story_${id}`).join(",")})`;
+  const parentGroup = storyIds.length === 1 ? `parent_id=${storyIds[0]}` : `(${storyIds.map((id) => `parent_id=${id}`).join(",")})`;
+  const storySet = new Set(storyIds.map(Number));
+  const seen = new Set();
   const hits = [];
-  let page = 0;
-  let nbPages = 1;
-  while (page < nbPages) {
-    const url = `${ALGOLIA_API}/search_by_date?tags=comment,${tagGroup}&hitsPerPage=1000&page=${page}&numericFilters=created_at_i%3E${minUnix}`;
+  let maxCreatedAt = null;
+
+  while (true) {
+    const numFilter = maxCreatedAt == null ? parentGroup : `${parentGroup},created_at_i<=${maxCreatedAt}`;
+    const url = `${ALGOLIA_API}/search_by_date?tags=comment,${tagGroup}&numericFilters=${encodeURIComponent(numFilter)}&hitsPerPage=1000`;
     const res = await getJson(url);
-    for (const h of res.hits ?? []) hits.push({ story_id: Number(h.story_id), created_at_i: Number(h.created_at_i) });
-    nbPages = res.nbPages ?? 1;
-    page++;
+    const batch = res.hits ?? [];
+    let added = 0;
+    let minTs = Infinity;
+    for (const h of batch) {
+      const id = String(h.objectID);
+      const ts = Number(h.created_at_i);
+      if (ts < minTs) minTs = ts;
+      if (seen.has(id)) continue;
+      seen.add(id);
+      const storyId = Number(h.story_id);
+      const parentId = Number(h.parent_id);
+      if (storySet.has(storyId) && parentId === storyId) {
+        hits.push({ story_id: storyId, parent_id: parentId, created_at_i: ts });
+        added++;
+      }
+    }
+    if (batch.length < 1000 || seen.size >= (res.nbHits ?? 0) || !added || !Number.isFinite(minTs)) break;
+    maxCreatedAt = maxCreatedAt != null && minTs === maxCreatedAt ? minTs - 1 : minTs;
   }
   return hits;
 }
 
-async function enrichWindows(posts, existingById) {
+async function enrichWindows(posts, existingById, isTopLevel) {
   const nowSec = Math.floor(Date.now() / 1000);
-  const byMonth = new Map();
+  const forceRefresh = process.argv.includes("--refresh") || !isTopLevel;
+  const toFetch = [];
   for (const post of posts) {
     const t0 = Math.floor(new Date(post.posted_at).getTime() / 1000);
     const prev = existingById.get(post.id);
     const mature = nowSec - t0 > 30 * 86400;
-    if (mature && prev && WINDOWS.every(({ field }) => typeof prev[field] === "number")) {
+    if (
+      !forceRefresh &&
+      mature &&
+      prev &&
+      typeof prev.comments === "number" &&
+      WINDOWS.every(({ field }) => typeof prev[field] === "number")
+    ) {
+      post.comments = prev.comments;
       for (const { field } of WINDOWS) post[field] = prev[field];
     } else {
-      if (!byMonth.has(post.month)) byMonth.set(post.month, []);
-      byMonth.get(post.month).push(post);
+      toFetch.push(post);
     }
   }
-  const batches = [...byMonth.values()];
+  const batches = [];
+  let cur = [];
+  let curCount = 0;
+  for (const post of toFetch) {
+    const est = post.comments || 500;
+    if (cur.length && (cur.length >= ALGOLIA_BATCH_MAX_POSTS || curCount + est > ALGOLIA_BATCH_MAX_COMMENTS)) {
+      batches.push(cur);
+      cur = [];
+      curCount = 0;
+    }
+    cur.push(post);
+    curCount += est;
+  }
+  if (cur.length) batches.push(cur);
+
   if (batches.length) {
-    console.log(`Fetching Algolia window counts (${WINDOWS.map((w) => w.field).join(", ")}) across ${batches.length} monthly batches...`);
+    console.log(`Fetching Algolia top-level comment counts (${WINDOWS.map((w) => w.field).join(", ")}) across ${batches.length} batches...`);
     await mapLimit(batches, ALGOLIA_CONCURRENCY, async (group) => {
-      const t0ById = new Map(group.map((p) => [p.id, Math.floor(new Date(p.posted_at).getTime() / 1000)]));
-      const minCutoff24 = Math.min(...group.map((p) => t0ById.get(p.id) + 24 * 3600));
-      const hits = await fetchCommentsAfter(group.map((p) => p.id), minCutoff24);
+      const hits = await fetchTopLevelComments(group.map((p) => p.id));
       for (const post of group) {
-        const t0 = t0ById.get(post.id);
-        const storyHits = hits.filter((h) => h.story_id === post.id);
+        const t0 = Math.floor(new Date(post.posted_at).getTime() / 1000);
+        const storyHits = hits.filter((h) => h.story_id === post.id && h.parent_id === post.id);
+        post.comments = storyHits.length;
         for (const { field, seconds } of WINDOWS) {
-          const after = storyHits.filter((h) => h.created_at_i > t0 + seconds).length;
-          post[field] = Math.max(0, post.comments - after);
+          post[field] = storyHits.filter((h) => h.created_at_i <= t0 + seconds).length;
         }
       }
-      await new Promise((r) => setTimeout(r, 80));
+      await new Promise((r) => setTimeout(r, 50));
     });
   }
 }
@@ -131,7 +171,7 @@ function toRecord(item, { kind, month, official, note }) {
     by: item.by,
     posted_at: new Date(item.time * 1000).toISOString(),
     score: item.score ?? 0,
-    comments: item.descendants ?? 0,
+    comments: item.kids?.length ?? 0,
     official,
     url: `https://news.ycombinator.com/item?id=${item.id}`,
     ...(note ? { note } : {}),
@@ -165,14 +205,17 @@ function toCsv(rows) {
 async function loadExisting() {
   try {
     const raw = JSON.parse(await fs.readFile(OUT_JSON, "utf8"));
-    return new Map((raw.posts ?? []).map((p) => [p.id, p]));
+    return {
+      isTopLevel: raw.comment_scope === "top_level",
+      byId: new Map((raw.posts ?? []).map((p) => [p.id, p])),
+    };
   } catch {
-    return new Map();
+    return { isTopLevel: false, byId: new Map() };
   }
 }
 
 async function main() {
-  const existingById = await loadExisting();
+  const { isTopLevel, byId: existingById } = await loadExisting();
   const enrichOnly = process.argv.includes("--enrich-only") && existingById.size > 0;
   const skipped = [];
   let posts;
@@ -218,7 +261,7 @@ async function main() {
     posts = [...byKey.values()].sort((a, b) => a.month.localeCompare(b.month) || a.kind.localeCompare(b.kind));
   }
 
-  await enrichWindows(posts, existingById);
+  await enrichWindows(posts, existingById, isTopLevel);
   posts = posts.map(({ id, kind, month, title, by, posted_at, score, comments, comments_24hr, comments_7d, comments_21d, official, url, note }) => ({
     id, kind, month, title, by, posted_at, score,
     comments, comments_24hr, comments_7d, comments_21d,
@@ -228,6 +271,7 @@ async function main() {
   await fs.mkdir(DATA_DIR, { recursive: true });
   const output = {
     generated_at: new Date().toISOString(),
+    comment_scope: "top_level",
     sources: { official_accounts: OFFICIAL_ACCOUNTS, extra: path.basename(SEED_FILE) },
     posts,
   };

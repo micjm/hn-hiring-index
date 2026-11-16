@@ -1,0 +1,96 @@
+name: Refresh HN Hiring Index
+
+# Keeps https://micjm.github.io/hn-hiring-index/ (the page linked from the
+# blog post at micjm.com) up to date. This workflow is for the
+# micjm/hn-hiring-index repository only.
+#
+# A month only enters the index once its thread is 21 days old, so the
+# headline number changes in the last week of each month. The schedule runs
+# daily over that window (22nd-28th) so a late-posted thread or a failed run
+# is picked up the next day; runs that produce no substantive change are
+# not committed or deployed (see the "Detect changes" step).
+
+on:
+  schedule:
+    - cron: "17 9 22-28 * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/**"
+      - "package.json"
+      - ".github/workflows/refresh-index.yml"
+
+permissions:
+  contents: write # commit refreshed data/plots/docs back to main
+  pages: write # deploy to GitHub Pages
+  id-token: write # required by actions/deploy-pages
+
+# Never run two refreshes (or deployments) at once.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # No dependencies to install: every script uses only Node built-ins.
+      # build = fetch HN/Algolia data, regenerate plots, rebuild the index.
+      - name: Fetch data and rebuild index
+        run: |
+          npm run build
+          npm run build:static
+
+      # generated_at timestamps change on every run. Ignore diffs that touch
+      # nothing else so we don't create a commit (or redeploy identical data)
+      # on days when no new month has completed its 21-day window.
+      - name: Detect substantive changes
+        id: changes
+        run: |
+          git add data plots docs
+          if git diff --cached -I'generated_at' --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            git restore --staged data plots docs
+            git checkout -- data plots docs
+            echo "No substantive change; nothing to commit or deploy."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --cached --stat
+          fi
+
+      - name: Commit refreshed data
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Refresh HN Hiring Index data"
+          git push
+
+      # Deploy on a data change, and also on pushes/manual runs so code
+      # changes and the first Actions-based deployment go live even when
+      # the data itself has not moved. (The commit-back above uses
+      # GITHUB_TOKEN, whose pushes do not retrigger this workflow.)
+      - name: Upload Pages artifact
+        if: steps.changes.outputs.changed == 'true' || github.event_name != 'schedule'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        if: steps.changes.outputs.changed == 'true' || github.event_name != 'schedule'
+        uses: actions/deploy-pages@v4

@@ -203,7 +203,9 @@ async function main() {
     month: p.month, kind: p.kind, id: p.id, age_hours: p.age_hours,
     comments: p.comments, comments_24hr: p.comments_24hr,
     windows_complete: p.windows_complete,
-    note: `Posted ${p.age_hours}h ago; even the 24hr window is incomplete, so this month is excluded from the index. The 24hr index becomes available 24h after posting, the 21d index after 21 days.`,
+    note: p.windows_complete.includes("24hr")
+      ? `Posted ${p.age_hours}h ago; the 24hr window is complete, but the 21d window is incomplete, so this month is excluded from the index until 21 days after posting.`
+      : `Posted ${p.age_hours}h ago; even the 24hr window is incomplete, so this month is excluded from the index. The 24hr index becomes available 24h after posting, the 21d index after 21 days.`,
   }));
 
   const validation = {};
@@ -235,8 +237,8 @@ async function main() {
     wants_adjusted_21d: Number(Math.max(...moySpreadFromMonths(indexMonths, (m) => byMonthRow.get(m).wants_sa_21d)).toFixed(1)),
   };
   validation.window_disagreement_notes = [
-    "Largest 21d-vs-24hr gaps occur in low-volume months where the 24hr count is a small denominator (e.g. 2016-01 wants had 31 comments in its first 24h) and in slow-start months (2024-09 hiring captured only 44% of its total in 24h vs 66% in August).",
-    "These are window-measurement artifacts, not data errors: the 21d window is unaffected because it captures ~100% of final comments.",
+    "Largest 21d-vs-24hr gaps occur in low-volume months where the 24hr count is a small denominator (e.g. 2016-01 wants had 30 top-level comments in its first 24h) and in slow-start months (2024-09 hiring captured only 44% of its total in 24h vs 64% in August).",
+    "These are window-measurement artifacts, not data errors: the 21d window is unaffected because it captures ~100% of final top-level comments.",
   ];
 
   const ERAS = [
@@ -284,9 +286,9 @@ async function main() {
         median_rel_diff_pct: validation.badness_index.median_rel_diff_pct,
       },
       reading_examples: [
-        `Best month on record: ${bestMonth.month} at ${bestMonth.badness_21d} (${bestMonth.wants_raw_21d} seeker vs ${bestMonth.hiring_raw_21d} hiring comments in 21d).`,
-        `Latest month: ${last.month} at ${last.badness_index_21d} (${last.wants_raw_21d} seeker vs ${last.hiring_raw_21d} hiring comments in 21d) — ${round(last.badness_index_21d / index.find((r) => r.month === bestMonth.month).badness_index_21d, 1)}x the best month.`,
-        "100 means exactly as bad as the 2014-2026 average; 200 means twice as bad; 50 means half as bad.",
+        `Best month on record: ${bestMonth.month} at ${bestMonth.badness_21d} (${bestMonth.wants_raw_21d} seeker vs ${bestMonth.hiring_raw_21d} hiring top-level comments in 21d).`,
+        `Latest month: ${last.month} at ${last.badness_index_21d} (${last.wants_raw_21d} seeker vs ${last.hiring_raw_21d} hiring top-level comments in 21d) — ${round(last.badness_index_21d / index.find((r) => r.month === bestMonth.month).badness_index_21d, 1)}x the best month.`,
+        `100 means exactly as bad as the ${index[0].month}..${last.month} average; 200 means twice as bad; 50 means half as bad.`,
       ],
     };
   })();
@@ -294,6 +296,7 @@ async function main() {
   const output = {
     generated_at: new Date().toISOString(),
     method: {
+      comment_scope: "Top-level comments only (parent_id === story_id); nested replies under listings are excluded.",
       deseasonalization: `Iterative multiplicative seasonal adjustment (${MA_ITERS} passes): 2x12 centered MA trend -> median month-of-year ratio -> factors normalized to mean 1.0 -> series / factors. Estimated per (kind x window) independently.`,
       window_correction: "24hr counts are divided by a trailing 12-month median share of the final total, restating them as final-total-equivalents so the 24hr and 21d indexes share a common scale and the 24hr index can nowcast a thread on its first day.",
       rebasing: "Each deseasonalized series is rebased to 100 = mean over the common overlap period 2014-07 onward.",
@@ -306,7 +309,7 @@ async function main() {
         tightness_index: "Deprecated alias of badness_index, kept for backward compatibility. Note it is the inverse of the economist's usual 'tightness' (vacancies per unemployed).",
         activity_index: "sqrt(hiring_index * wants_index). Overall job-thread engagement; NOT scale-free, so it partly tracks HN's own traffic.",
       },
-      window_choice: "21d captures 99.9-100% of final comments with no next-month overlap (r=1.000 with total) and is the recommended basis. 24hr is the fast nowcast (r=0.976 with total).",
+      window_choice: "21d captures 99.9-100% of final top-level comments with no next-month overlap (r=1.000 with total) and is the recommended basis. 24hr is the fast nowcast (r=0.986 with 21d).",
       excluded: "Months with no complete 21d window are excluded (see partial_months).",
     },
     base_period: { start: BASE_START, end: index.at(-1).month, months: index.length },
@@ -357,7 +360,7 @@ async function main() {
   const blogX = index.map((r, i) => (i === 0 || (r.month.endsWith("-01") && Number(r.month.slice(0, 4)) % 2 === 0)) ? r.month.slice(0, 4) : "");
   await fs.writeFile(path.join(PLOTS_DIR, "05-index-deseasonalized.svg"), lineSvg({
     title: "5. Job seekers vs employer posts (seasonally adjusted, monthly)",
-    subtitle: "100 = mean of 2014-07..2026-10 for each series. Badness = seekers / employer posts",
+    subtitle: `100 = mean of ${index[0].month}..${last.month} for each series. Badness = seekers / employer posts`,
     width: 680, height: 300,
     xLabels: blogX,
     xStep: 1,
@@ -371,12 +374,12 @@ async function main() {
 
   await fs.writeFile(path.join(PLOTS_DIR, "06-badness-index.svg"), lineSvg({
     title: "6. HN Job Market Badness Index = 100 x wants_index / hiring_index",
-    subtitle: "Higher = worse for job seekers. 100 = 2014-07..2026-10 average. Monthly values, no smoothing",
+    subtitle: `Higher = worse for job seekers. 100 = ${index[0].month}..${last.month} average. Monthly values, no smoothing`,
     width: 680, height: 330,
     xLabels: blogX,
     xStep: 1,
     bands: PANDEMIC,
-    yMax: 560,
+    yMax: Math.max(560, Math.ceil((Math.max(...bad21) * 1.08) / 50) * 50),
     yMin: 0,
     series: [
       { label: "Badness (monthly)", values: bad21, color: "#dc2626", width: 2.4 },

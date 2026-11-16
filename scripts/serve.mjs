@@ -241,15 +241,15 @@ export function methodology(data) {
   <h2>Data</h2>
   <p>Monthly activity in Hacker News “Who is hiring?” and “Who wants to be hired?” threads.</p>
   <p class="meta">${period} · ${data.index.length} months · seasonally adjusted</p>
-  <p>Each observation counts comments in the first 21 days of a thread. Months without a complete 21-day window are excluded. Freelancer threads are not included in the index.</p>
+  <p>Each observation counts top-level comments in the first 21 days of a thread; nested replies are excluded. Months without a complete 21-day window are excluded. Freelancer threads are not included in the index.</p>
   <h2>Hiring index</h2>
-  <p>The first figure shows 100 × seeker component / hiring component. Higher values mean more seeker comments relative to hiring comments.</p>
+  <p>The first figure shows 100 × seeker component / hiring component. Higher values mean more seeker posts relative to hiring posts.</p>
   <p>The dashed line at 100 marks equal component levels relative to their respective means, not equal raw comment counts. It is a reference, not the average of the hiring index.</p>
   <h2>Component series</h2>
   <p>The second figure shows seeker comments (solid blue) and hiring comments (dashed gray). Each series is seasonally adjusted separately and indexed to its own mean = 100 over ${period}.</p>
   <p>Seasonal adjustment uses five passes of a centered 12-month moving-average trend and median month-of-year ratios. Both figures display monthly values without additional smoothing.</p>
   <h2>Sources and limits</h2>
-  <p>Official HN threads are collected through the HN API; Algolia supplies comment timing for the fixed windows. Counts include replies, so they are not unique people, employers or vacancies. HN is not representative of the whole job market.</p>
+  <p>Official HN threads are collected through the HN API; Algolia supplies top-level comments (<code>parent_id = story_id</code>) and their timestamps for the fixed windows. Only top-level entries are counted, excluding nested replies under listings, though one employer post can cover multiple roles and people or companies may repost across months. HN is not representative of the whole job market.</p>
   <p class="links"><a href="../data/index.csv">Index data (CSV)</a><a href="../data/posts.csv">Thread data (CSV)</a><a href="../data/index.json">Index and method details (JSON)</a></p>
 </main>
 <footer><div class="footer-content"><p><a href="../">Back to charts</a></p>${FOOTER_CREDITS}</div></footer>

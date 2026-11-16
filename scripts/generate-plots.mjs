@@ -9,7 +9,14 @@ const PLOTS_DIR = path.join(ROOT, "plots");
 
 async function main() {
   const raw = JSON.parse(await fs.readFile(path.join(DATA_DIR, "posts.json"), "utf8"));
-  const mature = raw.posts.filter((p) => p.month < "2026-11");
+  // A post is mature once its full 21-day comment window has elapsed. Deriving
+  // this from posted_at (rather than a hardcoded month) lets scheduled rebuilds
+  // pick up each new month automatically.
+  const now = Date.now();
+  const WINDOW_MS = 21 * 24 * 3600 * 1000;
+  const isMature = (p) => now - new Date(p.posted_at).getTime() >= WINDOW_MS;
+  const mature = raw.posts.filter(isMature);
+  const censoredMonths = [...new Set(raw.posts.filter((p) => !isMature(p)).map((p) => p.month))].sort();
   const byKind = { hiring: new Map(), wants_to_be_hired: new Map(), freelancer: new Map() };
   for (const p of mature) byKind[p.kind]?.set(p.month, p);
 
@@ -21,10 +28,10 @@ async function main() {
   await fs.mkdir(PLOTS_DIR, { recursive: true });
 
   const svg1 = lineSvg({
-    title: "1. Monthly Comment Volume (21-day window) & 12-Month Rolling Mean",
-    subtitle: "2010-06 to 2026-10",
+    title: "1. Monthly Top-Level Comment Volume (21-day window) & 12-Month Rolling Mean",
+    subtitle: `${months[0]} to ${months.at(-1)}`,
     xLabels: months,
-    yMax: 1300,
+    yMax: 1100,
     series: [
       { label: "Hiring (21d)", values: h21, color: "#93c5fd", width: 1.3 },
       { label: "Hiring (12m MA)", values: rollingMean(h21.map((v) => v ?? 0), 12), color: "#1d4ed8", width: 2.5 },
@@ -103,9 +110,9 @@ async function main() {
 
   const svg4 = lineSvg({
     title: "4. Seasonality Profile (% deviation from centered 12-month MA)",
-    subtitle: "Jan 1 holiday hits 24hr (-24.4%) harder than 21d (-15.4%); Dec dips in both series",
+    subtitle: `Jan 1 holiday hits 24hr (${seasHiring24[0]}%) harder than 21d (${seasHiring21[0]}%); Dec dips in both series`,
     xLabels: monthNames,
-    yMin: -28,
+    yMin: -32,
     yMax: 20,
     zeroLine: true,
     yFmt: (v) => `${Math.round(v)}%`,
@@ -132,7 +139,7 @@ async function main() {
   const analysis = {
     generated_at: new Date().toISOString(),
     mature_through: months.at(-1),
-    censored_months: ["2026-11"],
+    censored_months: censoredMonths,
     seasonality: { months: monthNames, hiring_24hr: seasHiring24, hiring_21d: seasHiring21, wants_21d: seasWants21 },
     lead_lag: lags,
   };
