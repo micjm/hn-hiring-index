@@ -55,14 +55,15 @@ jobs:
           npm run build
           npm run build:static
 
-      # generated_at timestamps change on every run. Ignore diffs that touch
+      # generated_at timestamps (and the in-progress month's age_hours / note,
+      # which tick every hour) change on every run. Ignore diffs that touch
       # nothing else so we don't create a commit (or redeploy identical data)
       # on days when no new month has completed its 21-day window.
       - name: Detect substantive changes
         id: changes
         run: |
           git add data plots docs
-          if git diff --cached -I'generated_at' --quiet; then
+          if git diff --cached -I'generated_at' -I'age_hours' -I'"note": "Posted' --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             git restore --staged data plots docs
             git checkout -- data plots docs

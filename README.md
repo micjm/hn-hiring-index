@@ -18,8 +18,9 @@ The page updates itself via
 - Each run refetches the HN/Algolia data (`npm run build`), rebuilds the
   static site into `docs/` (`npm run build:static`), commits any substantive
   change back to `main`, and deploys `docs/` to GitHub Pages.
-- Runs whose only diff is a `generated_at` timestamp are discarded, so
-  no-change days create neither commits nor deployments.
+- Runs whose only diff is a `generated_at` timestamp (or the in-progress
+  month's ever-ticking `age_hours`) are discarded, so no-change days create
+  neither commits nor deployments.
 - It can also be run on demand from the Actions tab ("Refresh HN Hiring
   Index" → "Run workflow"), and it redeploys on pushes that touch
   `scripts/**`, `package.json`, or the workflow itself.
