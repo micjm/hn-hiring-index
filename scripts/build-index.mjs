@@ -357,7 +357,7 @@ async function main() {
   const blogX = index.map((r, i) => (i === 0 || (r.month.endsWith("-01") && Number(r.month.slice(0, 4)) % 2 === 0)) ? r.month.slice(0, 4) : "");
   await fs.writeFile(path.join(PLOTS_DIR, "05-index-deseasonalized.svg"), lineSvg({
     title: "5. Job seekers vs employer posts (seasonally adjusted, monthly)",
-    subtitle: "100 = mean of 2014-07..2026-10 for each series. Badness = seekers / employer posts",
+    subtitle: `100 = mean of ${BASE_START}..${last.month} for each series. Badness = seekers / employer posts`,
     width: 680, height: 300,
     xLabels: blogX,
     xStep: 1,
@@ -371,7 +371,7 @@ async function main() {
 
   await fs.writeFile(path.join(PLOTS_DIR, "06-badness-index.svg"), lineSvg({
     title: "6. HN Job Market Badness Index = 100 x wants_index / hiring_index",
-    subtitle: "Higher = worse for job seekers. 100 = 2014-07..2026-10 average. Monthly values, no smoothing",
+    subtitle: `Higher = worse for job seekers. 100 = ${BASE_START}..${last.month} average. Monthly values, no smoothing`,
     width: 680, height: 330,
     xLabels: blogX,
     xStep: 1,

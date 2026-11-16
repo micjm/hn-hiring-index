@@ -7,9 +7,15 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA_DIR = path.join(ROOT, "data");
 const PLOTS_DIR = path.join(ROOT, "plots");
 
+// A month only counts once its thread is old enough for the 21-day window to have
+// closed, so this keeps working as new months arrive.
+const WINDOW_MS = 21 * 24 * 3600 * 1000;
+
 async function main() {
   const raw = JSON.parse(await fs.readFile(path.join(DATA_DIR, "posts.json"), "utf8"));
-  const mature = raw.posts.filter((p) => p.month < "2026-11");
+  const now = Date.now();
+  const isMature = (p) => now - new Date(p.posted_at).getTime() >= WINDOW_MS;
+  const mature = raw.posts.filter(isMature);
   const byKind = { hiring: new Map(), wants_to_be_hired: new Map(), freelancer: new Map() };
   for (const p of mature) byKind[p.kind]?.set(p.month, p);
 
@@ -22,7 +28,7 @@ async function main() {
 
   const svg1 = lineSvg({
     title: "1. Monthly Comment Volume (21-day window) & 12-Month Rolling Mean",
-    subtitle: "2010-06 to 2026-10",
+    subtitle: `${months[0]} to ${months.at(-1)}`,
     xLabels: months,
     yMax: 1300,
     series: [
@@ -132,7 +138,7 @@ async function main() {
   const analysis = {
     generated_at: new Date().toISOString(),
     mature_through: months.at(-1),
-    censored_months: ["2026-11"],
+    censored_months: [...new Set(raw.posts.filter((p) => !isMature(p)).map((p) => p.month))].sort(),
     seasonality: { months: monthNames, hiring_24hr: seasHiring24, hiring_21d: seasHiring21, wants_21d: seasWants21 },
     lead_lag: lags,
   };
