@@ -25,6 +25,15 @@ function median(a) {
   return n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2;
 }
 
+async function readJsonIfExists(file) {
+  try {
+    return JSON.parse(await fs.readFile(file, "utf8"));
+  } catch (err) {
+    if (err.code === "ENOENT") return null;
+    throw err;
+  }
+}
+
 function addMonths(month, delta) {
   let [y, m] = month.split("-").map(Number);
   m += delta;
@@ -293,8 +302,16 @@ async function main() {
     };
   })();
 
+  // Unlike generated_at, index_updated_at only moves when index values change,
+  // so runs that only refresh the incomplete month leave it alone.
+  const generatedAt = new Date().toISOString();
+  const previous = await readJsonIfExists(path.join(DATA_DIR, "index.json"));
+  const unchanged = JSON.stringify(previous?.index) === JSON.stringify(index);
+  const indexUpdatedAt = (unchanged && previous?.index_updated_at) || generatedAt;
+
   const output = {
-    generated_at: new Date().toISOString(),
+    generated_at: generatedAt,
+    index_updated_at: indexUpdatedAt,
     method: {
       comment_scope: "Top-level comments only (parent_id === story_id); nested replies under listings are excluded.",
       deseasonalization: `Iterative multiplicative seasonal adjustment (${MA_ITERS} passes): 2x12 centered MA trend -> median month-of-year ratio -> factors normalized to mean 1.0 -> series / factors. Estimated per (kind x window) independently.`,

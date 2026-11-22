@@ -1,5 +1,6 @@
 {
   "generated_at": "2026-11-22T17:12:07.702Z",
+  "index_updated_at": "2026-11-16T18:45:39.515Z",
   "method": {
     "comment_scope": "Top-level comments only (parent_id === story_id); nested replies under listings are excluded.",
     "deseasonalization": "Iterative multiplicative seasonal adjustment (5 passes): 2x12 centered MA trend -> median month-of-year ratio -> factors normalized to mean 1.0 -> series / factors. Estimated per (kind x window) independently.",

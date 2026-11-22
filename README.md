@@ -12,9 +12,11 @@ linked from the blog post at micjm.com, and the one kept up to date.
 The page updates itself via
 [`.github/workflows/refresh-index.yml`](.github/workflows/refresh-index.yml):
 
-- It runs on a schedule at 09:17 UTC on the 22nd–28th of each month. A month
+- It runs on a schedule at 17:17 UTC on the 22nd–28th of each month. A month
   only enters the index 21 days after its thread is posted, so that window is
-  when the headline number changes.
+  when the headline number changes. 17:17 UTC is after the 21-day window
+  closes for a thread posted on the 1st (usually 15:00–16:00 UTC), so such a
+  month lands on the 22nd; later-posted threads land on the 23rd or 24th.
 - Each run refetches the HN/Algolia data (`npm run build`), rebuilds the
   static site into `docs/` (`npm run build:static`), commits any substantive
   change back to `main`, and deploys `docs/` to GitHub Pages.

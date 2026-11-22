@@ -8,7 +8,9 @@ name: Refresh HN Hiring Index
 # headline number changes in the last week of each month. The schedule runs
 # daily over that window (22nd-28th) so a late-posted thread or a failed run
 # is picked up the next day; runs that produce no substantive change are
-# not committed or deployed (see the "Detect changes" step).
+# not committed or deployed (see the "Detect changes" step). It runs at 17:17
+# UTC, after the 21-day window closes for a thread posted on the 1st (usually
+# 15:00-16:00 UTC), so such a month lands on the 22nd instead of the 23rd.
 #
 # Prerequisite: GitHub Pages must use "Source: GitHub Actions" (Settings ->
 # Pages) for the deploy steps below, and Actions jobs must be able to start
@@ -16,7 +18,7 @@ name: Refresh HN Hiring Index
 
 on:
   schedule:
-    - cron: "17 9 22-28 * *"
+    - cron: "17 17 22-28 * *"
   workflow_dispatch:
   push:
     branches: [main]

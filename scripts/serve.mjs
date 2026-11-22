@@ -21,6 +21,8 @@ figure:first-of-type{border-top:0;padding-top:0}
 .figure-heading{display:flex;justify-content:space-between;align-items:baseline;gap:8px 24px;flex-wrap:wrap}
 h2{margin:0;font-size:15px;font-weight:600}
 figcaption{margin-bottom:12px}
+.refresh{margin-top:8px}
+.refresh time{white-space:nowrap}
 .methodology{padding-bottom:30px}
 .methodology h2{margin:24px 0 8px}
 .methodology h2:first-child{margin-top:0}
@@ -58,6 +60,7 @@ export const HTML = `<!doctype html>
 <header>
   <h1>HN Hiring Index</h1>
   <p class="version">v0.1</p>
+  <p class="meta refresh">Last refresh: <time id="last-refresh">—</time> (data based on 21 days, index refreshes on 22nd of each month)</p>
 </header>
 <main>
   <p id="status" role="status"></p>
@@ -188,6 +191,11 @@ try {
   const wants = idx.map(r => r.wants_index_21d);
   const hiring = idx.map(r => r.hiring_index_21d);
   document.getElementById("latest").textContent = fmtMonth(last.month) + " · " + fmt(values.at(-1));
+  if (D.index_updated_at) {
+    const refreshed = document.getElementById("last-refresh");
+    refreshed.dateTime = D.index_updated_at;
+    refreshed.textContent = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeZone: "UTC" }).format(new Date(D.index_updated_at));
+  }
   status.textContent = "";
 
   const render = () => {
