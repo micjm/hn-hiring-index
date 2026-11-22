@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-16T18:45:39.515Z",
+  "generated_at": "2026-11-22T17:12:07.702Z",
   "method": {
     "comment_scope": "Top-level comments only (parent_id === story_id); nested replies under listings are excluded.",
     "deseasonalization": "Iterative multiplicative seasonal adjustment (5 passes): 2x12 centered MA trend -> median month-of-year ratio -> factors normalized to mean 1.0 -> series / factors. Estimated per (kind x window) independently.",
@@ -5430,25 +5430,25 @@
       "month": "2026-11",
       "kind": "hiring",
       "id": 50338728,
-      "age_hours": 338.7,
-      "comments": 245,
+      "age_hours": 481.2,
+      "comments": 241,
       "comments_24hr": 161,
       "windows_complete": [
         "24hr"
       ],
-      "note": "Posted 338.7h ago; the 24hr window is complete, but the 21d window is incomplete, so this month is excluded from the index until 21 days after posting."
+      "note": "Posted 481.2h ago; the 24hr window is complete, but the 21d window is incomplete, so this month is excluded from the index until 21 days after posting."
     },
     {
       "month": "2026-11",
       "kind": "wants_to_be_hired",
       "id": 50338726,
-      "age_hours": 338.7,
-      "comments": 669,
-      "comments_24hr": 360,
+      "age_hours": 481.2,
+      "comments": 658,
+      "comments_24hr": 354,
       "windows_complete": [
         "24hr"
       ],
-      "note": "Posted 338.7h ago; the 24hr window is complete, but the 21d window is incomplete, so this month is excluded from the index until 21 days after posting."
+      "note": "Posted 481.2h ago; the 24hr window is complete, but the 21d window is incomplete, so this month is excluded from the index until 21 days after posting."
     }
   ],
   "latest": {
