@@ -1,9 +1,7 @@
 {
-  "generated_at": "2026-11-22T17:12:07.572Z",
-  "mature_through": "2026-10",
-  "censored_months": [
-    "2026-11"
-  ],
+  "generated_at": "2026-11-24T03:20:03.128Z",
+  "mature_through": "2026-11",
+  "censored_months": [],
   "seasonality": {
     "months": [
       "Jan",
@@ -24,7 +22,7 @@
       4.67,
       -0.38,
       3.37,
-      12.1,
+      11.17,
       3.75,
       1.81,
       10.2,
@@ -38,7 +36,7 @@
       4.34,
       -1.52,
       3.21,
-      8.72,
+      8.39,
       3.35,
       2.64,
       7.05,
@@ -52,7 +50,7 @@
       -5.18,
       1.98,
       15.2,
-      -0.35,
+      0.09,
       3.4,
       0.9,
       4.31,
@@ -65,67 +63,67 @@
   "lead_lag": [
     {
       "lag": -6,
-      "corr_levels": -0.715,
-      "corr_yoy": -0.257
+      "corr_levels": -0.722,
+      "corr_yoy": -0.258
     },
     {
       "lag": -5,
-      "corr_levels": -0.728,
-      "corr_yoy": -0.262
+      "corr_levels": -0.734,
+      "corr_yoy": -0.263
     },
     {
       "lag": -4,
-      "corr_levels": -0.716,
-      "corr_yoy": -0.292
+      "corr_levels": -0.722,
+      "corr_yoy": -0.293
     },
     {
       "lag": -3,
-      "corr_levels": -0.73,
-      "corr_yoy": -0.32
+      "corr_levels": -0.736,
+      "corr_yoy": -0.323
     },
     {
       "lag": -2,
-      "corr_levels": -0.739,
-      "corr_yoy": -0.306
+      "corr_levels": -0.744,
+      "corr_yoy": -0.309
     },
     {
       "lag": -1,
-      "corr_levels": -0.72,
-      "corr_yoy": -0.328
-    },
-    {
-      "lag": 0,
-      "corr_levels": -0.707,
+      "corr_levels": -0.723,
       "corr_yoy": -0.334
     },
     {
+      "lag": 0,
+      "corr_levels": -0.712,
+      "corr_yoy": -0.336
+    },
+    {
       "lag": 1,
-      "corr_levels": -0.733,
-      "corr_yoy": -0.375
+      "corr_levels": -0.736,
+      "corr_yoy": -0.376
     },
     {
       "lag": 2,
-      "corr_levels": -0.705,
-      "corr_yoy": -0.392
+      "corr_levels": -0.709,
+      "corr_yoy": -0.394
     },
     {
       "lag": 3,
-      "corr_levels": -0.706,
-      "corr_yoy": -0.396
+      "corr_levels": -0.713,
+      "corr_yoy": -0.397
     },
     {
       "lag": 4,
-      "corr_levels": -0.715,
-      "corr_yoy": -0.347
+      "corr_levels": -0.719,
+      "corr_yoy": -0.348
     },
     {
       "lag": 5,
-      "corr_levels": -0.684,
-      "corr_yoy": -0.314
+      "corr_levels": -0.686,
+      "corr_yoy": -0.315
     },
     {
       "lag": 6,
-      "corr_levels": -0.658,
+      "corr_levels": -0.66,
       "corr_yoy": -0.264
     }
   ]
