@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25T01:25:51.968Z",
+  "generated_at": "2026-11-26T00:59:16.019Z",
   "comment_scope": "top_level",
   "sources": {
     "official_accounts": [
@@ -7793,10 +7793,10 @@
       "by": "whoishiring",
       "posted_at": "2026-11-02T16:01:37.000Z",
       "score": 263,
-      "comments": 239,
+      "comments": 238,
       "comments_24hr": 160,
-      "comments_7d": 205,
-      "comments_21d": 239,
+      "comments_7d": 204,
+      "comments_21d": 238,
       "official": true,
       "url": "https://news.ycombinator.com/item?id=50338728"
     },
@@ -7808,10 +7808,10 @@
       "by": "whoishiring",
       "posted_at": "2026-11-02T16:01:37.000Z",
       "score": 56,
-      "comments": 655,
-      "comments_24hr": 353,
-      "comments_7d": 536,
-      "comments_21d": 655,
+      "comments": 651,
+      "comments_24hr": 351,
+      "comments_7d": 533,
+      "comments_21d": 651,
       "official": true,
       "url": "https://news.ycombinator.com/item?id=50338726"
     }
