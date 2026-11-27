@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-26T00:59:16.184Z",
+  "generated_at": "2026-11-27T01:00:55.807Z",
   "mature_through": "2026-11",
   "censored_months": [],
   "seasonality": {
@@ -103,7 +103,7 @@
     },
     {
       "lag": 2,
-      "corr_levels": -0.709,
+      "corr_levels": -0.71,
       "corr_yoy": -0.393
     },
     {
@@ -113,7 +113,7 @@
     },
     {
       "lag": 4,
-      "corr_levels": -0.719,
+      "corr_levels": -0.72,
       "corr_yoy": -0.348
     },
     {
